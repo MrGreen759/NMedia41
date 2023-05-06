@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:contentDescription="@string/icon"
+            app:layout_constraintEnd_toStartOf="@+id/author"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_launcher_foreground" />
+
+        <TextView
+            android:id="@+id/author"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/title"
+            app:layout_constraintBottom_toTopOf="@+id/published"
+            app:layout_constraintEnd_toStartOf="@+id/buttonMenu"
+            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintTop_toTopOf="@+id/icon"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/published"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/published"
+            app:layout_constraintBottom_toBottomOf="@+id/icon"
+            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintTop_toBottomOf="@+id/author" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonMenu"
+            style="@style/Widget.AppTheme.SimpleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:contentDescription="@string/menu"
+            app:icon="@drawable/ic_baseline_more_vert_24"
+            app:layout_constraintBottom_toBottomOf="@+id/icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.04"
+            app:layout_constraintStart_toEndOf="@+id/author"
+            app:layout_constraintTop_toTopOf="@+id/icon"
+            app:layout_constraintVertical_bias="0.687" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="icon,author,published,buttonMenu"
+            app:layout_constraintTop_toBottomOf="@id/published" />
+
+        <TextView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:autoLink="web"
+            android:text="@string/hellotext"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier1"
+            />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="content"
+            app:layout_constraintBottom_toTopOf="@+id/ivPhoto"
+            />
+
+        <ImageView
+            android:id="@+id/ivPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content"
+            app:layout_constraintBottom_toTopOf="@+id/barrier3"
+            app:srcCompat="@drawable/playvideo5" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="ibLikes"
+            app:layout_constraintBottom_toTopOf="@id/ibLikes" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ibLikes"
+            style="@style/Widget.AppTheme.LikeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:checkable="true"
+            app:icon="@drawable/ic_like_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.04"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="likes" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tvPostId"
+            style="@style/Widget.AppTheme.SimpleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/postId"
+            app:layout_constraintTop_toTopOf="@id/ibLikes"
+            app:layout_constraintBottom_toBottomOf="@id/ibLikes"
+            app:layout_constraintLeft_toRightOf="@id/ibLikes"
+            app:layout_constraintHorizontal_bias="0.04"
+            app:layout_constraintHorizontal_chainStyle="packed"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
