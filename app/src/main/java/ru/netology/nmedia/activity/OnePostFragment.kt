@@ -70,6 +70,7 @@ class OnePostFragment: Fragment() {
                                 R.id.add -> {
                                     val epost = Post (
                                         id = -1L,
+                                        authorId = -1L,
                                         author = it.context.getString(R.string.title),
                                         authorAvatar = "",
                                         content = "",

@@ -23,6 +23,9 @@
         <action
             android:id="@+id/action_feedFragment_to_pictureViewFragment"
             app:destination="@id/pictureViewFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/newPostFragment"
@@ -45,4 +48,12 @@
         android:name="ru.netology.nmedia.activity.PictureViewFragment"
         android:label="fragment_picture_view"
         tools:layout="@layout/fragment_picture_view" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="ru.netology.nmedia.activity.LoginFragment"
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+    </fragment>
 </navigation>
