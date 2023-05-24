@@ -15,5 +15,6 @@ interface PostRepository {
     suspend fun likeById(post: Post): Boolean
     suspend fun showAll()
     suspend fun upload(upload: MediaUpload): Media
+    fun login(name: String, pass: String): Triple<Long, String, String>
 }
 

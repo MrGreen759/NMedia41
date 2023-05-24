@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
@@ -32,7 +33,6 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentLoginBinding.inflate(inflater, container, false)
-//        val loginButton = binding.login
         var usernametext = ""
         var passwordtext = ""
 
@@ -42,7 +42,7 @@ class LoginFragment : Fragment() {
 
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                     usernametext = username.getText().toString()
-                    if(passwordtext.isNotEmpty()) login.isEnabled = true
+                    if(passwordtext.isNotEmpty()) buttonLogin.isEnabled = true
                 }
 
                 override fun afterTextChanged(p0: Editable?) { }
@@ -53,17 +53,17 @@ class LoginFragment : Fragment() {
 
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                     passwordtext = password.text.toString()
-                    if(usernametext.isNotEmpty()) login.isEnabled = true
+                    if(usernametext.isNotEmpty()) buttonLogin.isEnabled = true
                 }
 
                 override fun afterTextChanged(p0: Editable?) { }
             })
 
-            login.setOnClickListener {
+            buttonLogin.setOnClickListener {
                 println("-----------Username: " + usernametext)
                 println("-----------Password: " + passwordtext)
                 if (usernametext.isNotEmpty() && passwordtext.isNotEmpty()) {
-//                TODO() viewModel.login(username, password)
+                    viewModel.login(usernametext, passwordtext)
                     findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
                 } else {
                     println("............ One or two fields are empty")

@@ -151,4 +151,12 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             throw UnknownError
         }
     }
+
+    override fun login(name: String, pass: String): Triple<Long, String, String> {
+        val response = PostsApi.service.updateUser(name, pass)
+        if (!response.isSuccessful) {
+            throw ApiError(response.code(), response.message())
+        }
+        return response.body() ?: throw ApiError(response.code(), response.message())
+    }
 }
