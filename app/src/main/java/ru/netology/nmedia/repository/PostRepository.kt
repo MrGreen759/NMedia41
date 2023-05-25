@@ -1,6 +1,7 @@
 package ru.netology.nmedia.repository
 
 import kotlinx.coroutines.flow.Flow
+import ru.netology.nmedia.dto.LoginData
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
@@ -15,6 +16,6 @@ interface PostRepository {
     suspend fun likeById(post: Post): Boolean
     suspend fun showAll()
     suspend fun upload(upload: MediaUpload): Media
-    fun login(name: String, pass: String): Triple<Long, String, String>
+    suspend fun login(name: String, pass: String): LoginData
 }
 

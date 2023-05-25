@@ -152,11 +152,12 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override fun login(name: String, pass: String): Triple<Long, String, String> {
+    override suspend fun login(name: String, pass: String): LoginData {
         val response = PostsApi.service.updateUser(name, pass)
         if (!response.isSuccessful) {
             throw ApiError(response.code(), response.message())
         }
+        println("=========== Response body: " + response.body())
         return response.body() ?: throw ApiError(response.code(), response.message())
     }
 }

@@ -8,7 +8,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.activity.LoginFragment
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dto.LoginData
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 
@@ -67,7 +69,7 @@ interface PostsApiService {
 
     @FormUrlEncoded
     @POST("users/authentication")
-    fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<Triple<Long, String, String>>
+    suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<LoginData>
 }
 
 object PostsApi {
