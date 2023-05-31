@@ -1,7 +1,7 @@
 package ru.netology.nmedia.dto
 
 data class LoginData(
-    val id: Long,
-    val token: String,
-    val avfile: String
+    var id: Long,
+    var token: String,
+    var avfile: String
 )

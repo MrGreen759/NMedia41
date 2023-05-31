@@ -58,13 +58,18 @@ class LoginFragment : Fragment() {
                 println("-----------Password: " + passwordtext)
                 if (usernametext.isNotEmpty() && passwordtext.isNotEmpty()) {
                     viewModel.login(usernametext, passwordtext)
-                    findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
                 } else {
                     println("............ One or two fields are empty")
-                    findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
                 }
+                findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
             }
         }
+
+        viewModel.authResult.observe(viewLifecycleOwner) {
+
+        }
+
+
         return binding.root
     }
 
