@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -57,18 +58,36 @@ class LoginFragment : Fragment() {
                 println("-----------Username: " + usernametext)
                 println("-----------Password: " + passwordtext)
                 if (usernametext.isNotEmpty() && passwordtext.isNotEmpty()) {
+                    progressBar.isVisible = true
                     viewModel.login(usernametext, passwordtext)
                 } else {
                     println("............ One or two fields are empty")
                 }
-                findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
             }
         }
 
         viewModel.authResult.observe(viewLifecycleOwner) {
-
+            if(it.equals("OK")) {
+                viewModel.authResult.postValue("nothing")
+                findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
+            }
+            if(!it.equals("nothing")) {
+                binding.retryTitle.text = it
+                binding.errorGroup.isVisible = true
+                binding.progressBar.isVisible = false
+            }
         }
 
+        binding.retryButton.setOnClickListener {
+            binding.errorGroup.isVisible = false
+            viewModel.authResult.postValue("nothing")
+        }
+
+        binding.cancelButton.setOnClickListener {
+            binding.errorGroup.isVisible = false
+            viewModel.authResult.postValue("nothing")
+            findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
+        }
 
         return binding.root
     }

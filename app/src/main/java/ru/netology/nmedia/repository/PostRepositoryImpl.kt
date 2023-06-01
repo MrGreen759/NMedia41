@@ -163,7 +163,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             }
         }
         catch (e: IOException) {
-            result.token = "Network Error"
+            result.token = "Connection Error"
         } catch (e: Exception) {
             result.token = "Unknown Error"
         }

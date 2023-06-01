@@ -16,7 +16,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
 
-    var authResult = MutableLiveData("OK")
+    var authResult = MutableLiveData("nothing")
 
     fun login(name: String, pass: String) = viewModelScope.launch {
         var authData: LoginData? = null
@@ -26,6 +26,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         if (authData?.id == -1L) {
             authResult.postValue(authData!!.token)
         } else {
+            authResult.postValue("OK")
             authData?.let { AppAuth.getInstance().setAuth(it.id, it.token) }
         }
     }
