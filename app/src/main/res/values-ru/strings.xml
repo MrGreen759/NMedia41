@@ -32,4 +32,11 @@
     <string name="title">Автор</string>
     <string name="published">дата и время</string>
     <string name="hellotext">пост</string>
+    <string name="sign_in">Вход</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="sign_out">Выход</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="action_sign_in">Вход / регистрация</string>
+    <string name="action_sign_in_short">Вход</string>
+    <string name="prompt_name">Имя</string>
 </resources>

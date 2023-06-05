@@ -151,4 +151,22 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             throw UnknownError
         }
     }
+
+    override suspend fun login(name: String, pass: String): LoginData {
+        var result: LoginData = LoginData(-1L, "", "")
+        try {
+            val response = PostsApi.service.updateUser(name, pass)
+            if (!response.isSuccessful) {
+                result.token = "Server Error"
+            } else {
+                result = response.body() ?: throw ApiError(response.code(), response.message())
+            }
+        }
+        catch (e: IOException) {
+            result.token = "Connection Error"
+        } catch (e: Exception) {
+            result.token = "Unknown Error"
+        }
+        return result
+    }
 }
