@@ -1,25 +1,23 @@
 package ru.netology.nmedia.service
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.PermissionChecker
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
+import com.google.gson.*
 import ru.netology.nmedia.R
-import kotlin.random.Random
+import ru.netology.nmedia.auth.AppAuth
+import java.lang.reflect.Type
 
 
 class FCMService : FirebaseMessagingService() {
-    private val action = "action"
-    private val content = "content"
+//    private val action = "action"
+//    private val content = "content"
     private val channelId = "remote"
     private val gson = Gson()
+    private lateinit var receivedPush: ReceivedPush
 
     override fun onCreate() {
         super.onCreate()
@@ -36,50 +34,88 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        println(message.data["content"])
+        println("----------------message: " + message.data)
+        var sss = message.data["content"]
+//        sss = """$sss""".trimIndent()
+//        val jjj = gson.toJsonTree(sss)
+//        println("<<<< jjj: " + jjj)
+//        val j2 = jjj.asJsonObject
+//        println("............. j2: " + j2)
+        println("------------sss: " + sss)
+//        receivedPush = gson.fromJson(message.data["content"], ReceivedPush::class.java)
 
-        message.data[action]?.let {
-           when (Action.valueOf(it)) {
-              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-           }
-        }
+        val gson1 = GsonBuilder().registerTypeAdapter(ReceivedPush::class.java, PushDeserializer()).create()
+        receivedPush = gson1.fromJson(sss, ReceivedPush::class.java)
+
+        println("---------- recipientId: " + receivedPush.recId)
+        println(">>>>>>>>>>>pushMessage: " + receivedPush.pushMessage)
+//        message.data[action]?.let {
+//           when (Action.valueOf(it)) {
+//              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
+//           }
+//        }
     }
 
     override fun onNewToken(token: String) {
+        AppAuth.getInstance().sendPushToken(token)
         println(token)
     }
 
-    private fun handleLike(content: Like) {
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(
-                getString(
-                    R.string.notification_user_liked,
-                    content.userName,
-                    content.postAuthor,
-                )
-            )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .build()
+//    private fun handleLike(content: Like) {
+//        val notification = NotificationCompat.Builder(this, channelId)
+//            .setSmallIcon(R.drawable.ic_notification)
+//            .setContentTitle(
+//                getString(
+//                    R.string.notification_user_liked,
+//                    content.userName,
+//                    content.postAuthor,
+//                )
+//            )
+//            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+//            .build()
+//
+//        if (PermissionChecker.checkSelfPermission(
+//                this,
+//                Manifest.permission.POST_NOTIFICATIONS
+//            ) == PermissionChecker.PERMISSION_GRANTED
+//        ) {
+//            NotificationManagerCompat.from(this)
+//                .notify(Random.nextInt(100_000), notification)
+//        }
+//    }
+}
 
-        if (PermissionChecker.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PermissionChecker.PERMISSION_GRANTED
-        ) {
-            NotificationManagerCompat.from(this)
-                .notify(Random.nextInt(100_000), notification)
+//enum class Action {
+//    LIKE,
+//}
+//
+//data class Like(
+//    val userId: Long,
+//    val userName: String,
+//    val postId: Long,
+//    val postAuthor: String,
+//)
+
+data class ReceivedPush(
+    var recId: Long?,
+    var pushMessage: String?
+    )
+
+class PushDeserializer : JsonDeserializer<ReceivedPush> {
+
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): ReceivedPush {
+        json as JsonObject
+        var rid: Long? = -1L
+        var pm: String? = null
+
+        try {
+            rid = json.get("recipientId").asLong
+            pm = json.get("content").asString
+        } catch (e: Exception) {
+            rid = null
+            println("rid=" + rid + ", pm: " + pm)
         }
+        return ReceivedPush(rid, pm)
     }
 }
-
-enum class Action {
-    LIKE,
-}
-
-data class Like(
-    val userId: Long,
-    val userName: String,
-    val postId: Long,
-    val postAuthor: String,
-)
-
