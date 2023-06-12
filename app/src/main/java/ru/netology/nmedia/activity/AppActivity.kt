@@ -1,6 +1,9 @@
 package ru.netology.nmedia.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -11,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
@@ -22,6 +26,8 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestNotificationsPermission()
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -49,7 +55,43 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             invalidateOptionsMenu()
         }
 
+        FirebaseInstallations.getInstance().id.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println(token)
+        }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println(token)
+        }
+
         checkGoogleApiAvailability()
+
+        requestNotificationsPermission()
+    }
+
+    private fun requestNotificationsPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+
+        val permission = Manifest.permission.POST_NOTIFICATIONS
+
+        if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        requestPermissions(arrayOf(permission), 1)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
