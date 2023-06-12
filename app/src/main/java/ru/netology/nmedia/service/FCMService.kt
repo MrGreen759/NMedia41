@@ -4,6 +4,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.*
@@ -16,7 +19,7 @@ class FCMService : FirebaseMessagingService() {
 //    private val action = "action"
 //    private val content = "content"
     private val channelId = "remote"
-    private val gson = Gson()
+//    private val gson = Gson()
     private lateinit var receivedPush: ReceivedPush
 
     override fun onCreate() {
@@ -34,22 +37,26 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        println(message.data["content"])
-        println("----------------message: " + message.data)
-        var sss = message.data["content"]
-//        sss = """$sss""".trimIndent()
-//        val jjj = gson.toJsonTree(sss)
-//        println("<<<< jjj: " + jjj)
-//        val j2 = jjj.asJsonObject
-//        println("............. j2: " + j2)
-        println("------------sss: " + sss)
-//        receivedPush = gson.fromJson(message.data["content"], ReceivedPush::class.java)
+        val pushData = message.data["content"]
+        println("-------------pushData: " + pushData)
+//        receivedPush = gson.fromJson(message.data["content"], ReceivedPush::class.java) - не работает
 
         val gson1 = GsonBuilder().registerTypeAdapter(ReceivedPush::class.java, PushDeserializer()).create()
-        receivedPush = gson1.fromJson(sss, ReceivedPush::class.java)
+        receivedPush = gson1.fromJson(pushData, ReceivedPush::class.java)
+        val recipId = receivedPush.recId
 
-        println("---------- recipientId: " + receivedPush.recId)
-        println(">>>>>>>>>>>pushMessage: " + receivedPush.pushMessage)
+        val authId = AppAuth.getInstance().authStateFlow.value.id
+        println("============= AuthID: " + authId)
+
+        if ((recipId == 0L) || (recipId != authId)) {
+            AppAuth.getInstance().sendPushToken()
+        }
+
+        if ((recipId == authId) || (recipId == null)) {
+            val handler = Handler(Looper.getMainLooper())
+            handler.post { Toast.makeText(applicationContext, receivedPush.pushMessage, Toast.LENGTH_LONG).show() }
+        }
+
 //        message.data[action]?.let {
 //           when (Action.valueOf(it)) {
 //              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
@@ -106,14 +113,15 @@ class PushDeserializer : JsonDeserializer<ReceivedPush> {
 
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): ReceivedPush {
         json as JsonObject
-        var rid: Long? = -1L
-        var pm: String? = null
+        var rid: Long?
+        var pm: String?
 
         try {
             rid = json.get("recipientId").asLong
             pm = json.get("content").asString
         } catch (e: Exception) {
             rid = null
+            pm = "Mass mailing"
             println("rid=" + rid + ", pm: " + pm)
         }
         return ReceivedPush(rid, pm)
