@@ -10,10 +10,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentLoginBinding
 import ru.netology.nmedia.viewmodel.LoginViewModel
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     companion object {
@@ -21,6 +24,8 @@ class LoginFragment : Fragment() {
     }
 
     private val viewModel: LoginViewModel by activityViewModels()
+
+    lateinit var appAuth: AppAuth
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,7 +64,7 @@ class LoginFragment : Fragment() {
                 println("-----------Password: " + passwordtext)
                 if (usernametext.isNotEmpty() && passwordtext.isNotEmpty()) {
                     progressBar.isVisible = true
-                    viewModel.login(usernametext, passwordtext)
+                    viewModel.login(usernametext, passwordtext, appAuth)
                 } else {
                     println("............ One or two fields are empty")
                 }

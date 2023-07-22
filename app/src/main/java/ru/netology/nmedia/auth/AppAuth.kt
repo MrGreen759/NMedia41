@@ -8,10 +8,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dto.PushToken
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppAuth private constructor(context: Context) {
+@Singleton
+class AppAuth @Inject constructor(context: Context, private val apiService: ApiService) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val idKey = "id"
     private val tokenKey = "token"
@@ -64,7 +67,7 @@ class AppAuth private constructor(context: Context) {
             try {
                 val pushToken = PushToken(token ?: Firebase.messaging.token.await())
                 println("------------------- MyToken:" + pushToken)
-                Api.service.save(pushToken)
+                apiService.save(pushToken)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -81,11 +84,11 @@ class AppAuth private constructor(context: Context) {
             )
         }
 
-        fun initApp(context: Context): AppAuth = instance ?: synchronized(this) {
-            instance ?: buildAuth(context).also { instance = it }
+        fun initApp(context: Context, apiService: ApiService): AppAuth = instance ?: synchronized(this) {
+            instance ?: buildAuth(context, apiService).also { instance = it }
         }
 
-        private fun buildAuth(context: Context): AppAuth = AppAuth(context)
+        private fun buildAuth(context: Context, apiService: ApiService): AppAuth = AppAuth(context, apiService)
     }
 }
 

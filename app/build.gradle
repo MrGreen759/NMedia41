@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 33
@@ -23,6 +24,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 
     buildFeatures {
@@ -97,6 +99,24 @@ dependencies {
     implementation "com.github.dhaval2404:imagepicker:$imagepicker_version"
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
+
+    implementation "com.google.dagger:dagger:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    annotationProcessor "com.google.dagger:dagger-compiler:$hilt_version"
+
+    // Dagger Core
+    implementation "com.google.dagger:dagger:$hilt_version"
+    kapt "com.google.dagger:dagger-compiler:$hilt_version"
+
+// Dagger Android
+    api "com.google.dagger:dagger-android:$hilt_version"
+    api "com.google.dagger:dagger-android-support:$hilt_version"
+    kapt "com.google.dagger:dagger-android-processor:$hilt_version"
+
+// Dagger - Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+//    kapt "com.google.dagger:hilt-android-compiler:hilt"
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"
