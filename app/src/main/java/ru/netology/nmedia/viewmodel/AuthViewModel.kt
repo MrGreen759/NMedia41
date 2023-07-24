@@ -8,10 +8,10 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import javax.inject.Inject
 
-class AuthViewModel @Inject constructor(private val appAuth: AppAuth) : ViewModel() {
-    val data: LiveData<AuthState> = AppAuth.getInstance()
+class AuthViewModel @Inject constructor(private val auth: AppAuth) : ViewModel() {
+    val data: LiveData<AuthState> = auth
         .authStateFlow
         .asLiveData(Dispatchers.Default)
     val authenticated: Boolean
-        get() = appAuth.authStateFlow.value.id != 0L
+        get() = auth.authStateFlow.value.id != 0L
 }
