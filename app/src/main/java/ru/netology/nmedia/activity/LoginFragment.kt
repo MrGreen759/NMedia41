@@ -15,6 +15,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentLoginBinding
 import ru.netology.nmedia.viewmodel.LoginViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
@@ -25,6 +26,7 @@ class LoginFragment : Fragment() {
 
     private val viewModel: LoginViewModel by activityViewModels()
 
+    @Inject
     lateinit var appAuth: AppAuth
 
     override fun onCreateView(

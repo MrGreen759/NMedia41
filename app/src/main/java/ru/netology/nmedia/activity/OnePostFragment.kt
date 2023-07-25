@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.*
 import ru.netology.nmedia.activity.PictureViewFragment.Companion.urlArg
 import ru.netology.nmedia.databinding.FragmentOnePostBinding
@@ -21,6 +23,7 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 // Фрагмент просмотра карточки одного поста во весь экран
 
+@AndroidEntryPoint
 class OnePostFragment: Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -30,7 +33,8 @@ class OnePostFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding: FragmentOnePostBinding = FragmentOnePostBinding.inflate(inflater, container, false)
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+//        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        val viewModel: PostViewModel by activityViewModels()
         val postId = arguments?.idArg
 
 

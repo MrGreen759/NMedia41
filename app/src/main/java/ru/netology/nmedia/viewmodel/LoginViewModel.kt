@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
@@ -13,6 +14,7 @@ import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import javax.inject.Inject
 
+@HiltViewModel
 //class LoginViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 class LoginViewModel @Inject constructor(private val repository: PostRepository, appAuth: AppAuth) : ViewModel() {
 
