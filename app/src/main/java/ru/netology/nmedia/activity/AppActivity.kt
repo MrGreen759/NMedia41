@@ -29,6 +29,12 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     @Inject
     lateinit var appAuth: AppAuth
 
+    @Inject
+    lateinit var fcm: FirebaseMessaging
+
+    @Inject
+    lateinit var apiChecker: GoogleApiAvailability
+
     private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +78,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             println(token)
         }
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+        fcm.token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
@@ -82,7 +88,23 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             println(token)
         }
 
-        checkGoogleApiAvailability()
+//        checkGoogleApiAvailability()
+        with(apiChecker) {
+            val code = isGooglePlayServicesAvailable(this@AppActivity)
+            if (code == ConnectionResult.SUCCESS) {
+                return@with
+            }
+            if (isUserResolvableError(code)) {
+                getErrorDialog(this@AppActivity, code, 9000)?.show()
+                return
+            }
+            Toast.makeText(this@AppActivity, R.string.google_play_unavailable, Toast.LENGTH_LONG)
+                .show()
+        }
+
+        fcm.token.addOnSuccessListener {
+            println(it)
+        }
 
         requestNotificationsPermission()
     }
@@ -133,22 +155,8 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         }
     }
 
-    private fun checkGoogleApiAvailability() {
-        with(GoogleApiAvailability.getInstance()) {
-            val code = isGooglePlayServicesAvailable(this@AppActivity)
-            if (code == ConnectionResult.SUCCESS) {
-                return@with
-            }
-            if (isUserResolvableError(code)) {
-                getErrorDialog(this@AppActivity, code, 9000)?.show()
-                return
-            }
-            Toast.makeText(this@AppActivity, R.string.google_play_unavailable, Toast.LENGTH_LONG)
-                .show()
-        }
+//    private fun checkGoogleApiAvailability() {
+//
+//    }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
-            println(it)
-        }
-    }
 }
