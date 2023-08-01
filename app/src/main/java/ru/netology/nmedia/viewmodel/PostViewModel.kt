@@ -72,7 +72,7 @@ class PostViewModel @Inject constructor(private val repository: PostRepository, 
             .asLiveData(Dispatchers.Default)
     }
 
-    private val edited = MutableLiveData(empty)
+    val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated

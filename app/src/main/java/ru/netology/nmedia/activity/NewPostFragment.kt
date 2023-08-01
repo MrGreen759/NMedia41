@@ -43,8 +43,7 @@ class NewPostFragment : Fragment() {
         )
         fragmentBinding = binding
 
-        arguments?.textArg
-            ?.let(binding.edit::setText)
+        arguments?.textArg?.let(binding.edit::setText)
 
         binding.edit.requestFocus()
 
