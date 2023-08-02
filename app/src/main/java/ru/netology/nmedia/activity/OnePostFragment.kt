@@ -9,7 +9,6 @@ import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.*
@@ -43,8 +42,9 @@ class OnePostFragment: Fragment() {
 
             with(binding) {
                 author.text = post.author
-                published.text = post.published.toString()
+                published.text = Utils.covertUT(post.published)
                 content.text = post.content
+                icon.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
                 tvPostId.setText("ID: " + post.id.toString())
                 ibLikes.text = Utils.convert(post.likes)
                 ibLikes.isChecked = post.likedByMe

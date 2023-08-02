@@ -1,5 +1,8 @@
 package ru.netology.nmedia.util
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+
 object Utils {
     fun convert(num: Int): String {
         val form: String
@@ -19,4 +22,11 @@ object Utils {
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun covertUT(timestamp: Long): String {
+        val sdf = java.text.SimpleDateFormat("dd-MM-yyyy' 'HH:mm:ss")
+        return sdf.format(java.util.Date(timestamp * 1000))
+    }
+
 }

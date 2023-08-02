@@ -113,9 +113,10 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.edited.observe(viewLifecycleOwner) { post ->
-            if (post.id == -1L) {
+            if (post.id == 0L) {
                 return@observe
             }
+            println("--------------------- ID: " + post.id)
             // переход во фрагмент редактирования текущего поста / создания нового поста
             findNavController().navigate(
                 R.id.action_feedFragment_to_newPostFragment,
