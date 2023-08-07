@@ -10,17 +10,19 @@ import android.widget.Toast
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.*
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import java.lang.reflect.Type
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class FCMService : FirebaseMessagingService() {
-//    private val action = "action"
-//    private val content = "content"
     private val channelId = "remote"
-//    private val gson = Gson()
     private lateinit var receivedPush: ReceivedPush
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     override fun onCreate() {
         super.onCreate()
@@ -45,11 +47,11 @@ class FCMService : FirebaseMessagingService() {
         receivedPush = gson1.fromJson(pushData, ReceivedPush::class.java)
         val recipId = receivedPush.recId
 
-        val authId = AppAuth.getInstance().authStateFlow.value.id
+        val authId = appAuth.authStateFlow.value.id
         println("============= AuthID: " + authId)
 
         if ((recipId == 0L) || (recipId != authId)) {
-            AppAuth.getInstance().sendPushToken()
+            appAuth.sendPushToken()
         }
 
         if ((recipId == authId) || (recipId == null)) {
@@ -65,7 +67,7 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        AppAuth.getInstance().sendPushToken(token)
+        appAuth.sendPushToken(token)
         println(token)
     }
 
