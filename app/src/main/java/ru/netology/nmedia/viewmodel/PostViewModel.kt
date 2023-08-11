@@ -4,15 +4,14 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.*
 import androidx.lifecycle.switchMap
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import androidx.paging.map
+import androidx.paging.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.MediaUpload
@@ -78,6 +77,7 @@ class PostViewModel @Inject constructor(private val repository: PostRepository, 
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
+    // TODO Восстановить!!!
 //    val newerCount: LiveData<Int> = data.switchMap {
 //        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
 //            .catch { e -> e.printStackTrace() }
@@ -164,9 +164,14 @@ class PostViewModel @Inject constructor(private val repository: PostRepository, 
 
     fun likeById(id: Long) = viewModelScope.launch {
 //        val currentPost = data.value?.posts?.filter { post: Post -> post.id == id }
-        val currentPost = data.filter {  post: Post -> post.id == id }
+
+        data.collectLatest { pdl: PagingData<Post> ->
+            repository.likeById(pdl.filter { it.id == id } })
+
+
+//        currentPost: Post? = pl.find { post:Post -> post.id == id }
         if (currentPost != null) {
-            val err = repository.likeById(currentPost[0])
+            val err = repository.likeById(currentPost)
             if (err) {
                 errorOperation.postValue(1)
                 errorPostId.postValue(id)

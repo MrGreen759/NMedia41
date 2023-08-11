@@ -9,8 +9,12 @@ import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.PagingData
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import okhttp3.internal.wait
 import ru.netology.nmedia.*
 import ru.netology.nmedia.activity.PictureViewFragment.Companion.urlArg
 import ru.netology.nmedia.databinding.FragmentOnePostBinding
@@ -36,9 +40,19 @@ class OnePostFragment: Fragment() {
         val viewModel: PostViewModel by activityViewModels()
         val postId = arguments?.idArg
 
+        lifecycleScope.launchWhenCreated {
+//            val postlist: List<Post> = listOf()
+            viewModel.data.collectLatest {
+                val postlist: List<Post> ->
+                val post = postlist.find{post:Post -> post.id == postId}
+            }
+            val post = pl.find{post:Post -> post.id == postId}
+//        }
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val post = state.posts.find { it.id == postId } ?: return@observe
+
+ //       viewModel.data.observe(viewLifecycleOwner) { state ->
+//            val post = state.posts.find { it.id == postId } ?: return@observe
+//            val post = pl.find{post:Post -> post.id == postId}
 
             with(binding) {
                 author.text = post.author

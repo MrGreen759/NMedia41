@@ -76,6 +76,7 @@ class FeedFragment : Fragment() {
         })
 
         binding.list.adapter = adapter
+
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swiperefresh.isRefreshing = state.refreshing
@@ -97,13 +98,13 @@ class FeedFragment : Fragment() {
 //            binding.emptyText.isVisible = state.empty
 //        }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            if (state != 0) {
-                newPostsCount += 1
-                binding.buttonNew.isVisible = true
-                binding.buttonNew.text = getString(R.string.new_posts_appear) + " ($newPostsCount)"
-            }
-        }
+//        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+//            if (state != 0) {
+//                newPostsCount += 1
+//                binding.buttonNew.isVisible = true
+//                binding.buttonNew.text = getString(R.string.new_posts_appear) + " ($newPostsCount)"
+//            }
+//        }
 
         binding.buttonNew.setOnClickListener {
             viewModel.showAll()
