@@ -15,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
-import ru.netology.nmedia.activity.OnePostFragment.Companion.idArg
+//import ru.netology.nmedia.activity.OnePostFragment.Companion.idArg
 import ru.netology.nmedia.activity.PictureViewFragment.Companion.urlArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -43,9 +43,9 @@ class FeedFragment : Fragment() {
                 viewModel.edit(post)
             }
 
-            override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
-            }
+//            override fun onLike(post: Post) {
+//                viewModel.likeById(post.id)
+//            }
 
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
@@ -63,10 +63,10 @@ class FeedFragment : Fragment() {
                 startActivity(shareIntent)
             }
 
-            override fun onPost(id: Long) {
-                findNavController().navigate(R.id.action_feedFragment_to_onePostFragment,
-                    Bundle().apply { idArg = id })
-            }
+//            override fun onPost(id: Long) {
+//                findNavController().navigate(R.id.action_feedFragment_to_onePostFragment,
+//                    Bundle().apply { idArg = id })
+//            }
 
             override fun onPicture(url: String) {
                 findNavController().navigate(R.id.action_feedFragment_to_pictureViewFragment,
@@ -145,7 +145,7 @@ class FeedFragment : Fragment() {
         binding.retryButton.setOnClickListener {
             binding.errorGroup.isVisible = false
             when (errOp) {
-                1 -> viewModel.likeById(errId)
+//                1 -> viewModel.likeById(errId)
                 2 -> viewModel.removeById(errId)
             }
         }

@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
+import androidx.paging.filter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import okhttp3.internal.wait
@@ -26,98 +27,96 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 // Фрагмент просмотра карточки одного поста во весь экран
 
-@AndroidEntryPoint
-class OnePostFragment: Fragment() {
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val binding: FragmentOnePostBinding = FragmentOnePostBinding.inflate(inflater, container, false)
-//        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
-        val viewModel: PostViewModel by activityViewModels()
-        val postId = arguments?.idArg
-
-        lifecycleScope.launchWhenCreated {
-//            val postlist: List<Post> = listOf()
-            viewModel.data.collectLatest {
-                val postlist: List<Post> ->
-                val post = postlist.find{post:Post -> post.id == postId}
-            }
-            val post = pl.find{post:Post -> post.id == postId}
+//@AndroidEntryPoint
+//class OnePostFragment: Fragment() {
+//
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    override fun onCreateView(
+//        inflater: LayoutInflater,
+//        container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        val binding: FragmentOnePostBinding = FragmentOnePostBinding.inflate(inflater, container, false)
+////        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+//        val viewModel: PostViewModel by activityViewModels()
+//        val postId = arguments?.idArg
+//
+//        lifecycleScope.launchWhenCreated {
+//            viewModel.data.collectLatest {
+//                it.filter { post: Post -> post.id == postId }
+//            }
+//
 //        }
-
-
- //       viewModel.data.observe(viewLifecycleOwner) { state ->
-//            val post = state.posts.find { it.id == postId } ?: return@observe
-//            val post = pl.find{post:Post -> post.id == postId}
-
-            with(binding) {
-                author.text = post.author
-                published.text = Utils.covertUT(post.published)
-                content.text = post.content
-                icon.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
-                tvPostId.setText("ID: " + post.id.toString())
-                ibLikes.text = Utils.convert(post.likes)
-                ibLikes.isChecked = post.likedByMe
-
-                ivPhoto.load("${BuildConfig.BASE_URL}/media/${post.attachment?.url}")
-
-                ivPhoto.setOnClickListener{
-                    findNavController().navigate(R.id.action_onePostFragment_to_pictureViewFragment,
-                    Bundle().apply { urlArg = post.attachment?.url })
-                }
-
-                ibLikes.setOnClickListener {
-                    viewModel.likeById(post.id)
-                }
-
-                // слушатель на кнопку "три точки"
-                buttonMenu.setOnClickListener {
-                    PopupMenu(it.context, it).apply {
-                        inflate(R.menu.options_post)
-                        setOnMenuItemClickListener { item ->
-                            when (item.itemId) {
-                                R.id.remove -> {
-                                    viewModel.removeById(post.id)
-                                    findNavController().navigateUp()
-                                    true
-                                }
-                                R.id.add -> {
-                                    val epost = Post (
-                                        id = -1L,
-                                        authorId = -1L,
-                                        author = it.context.getString(R.string.title),
-                                        authorAvatar = "",
-                                        content = "",
-                                        published = 0L,
-                                        likedByMe = false,
-                                        likes = 0,
-                                        hidden = false,
-                                        attachment = null
-                                    )
-                                    findNavController().navigate(R.id.action_onePostFragment_to_newPostFragment)
-                                    true
-                                }
-                                R.id.edit -> {
-                                    viewModel.edit(post)
-                                    findNavController().navigateUp()
-                                    true
-                                }
-                                else -> false
-                            }
-                        }
-                    }.show()
-                }
-            }
-        }
-        return binding.root
-    }
-
-    companion object {
-        var Bundle.idArg: Long? by IdArg
-    }
-
-}
+//
+//
+// //       viewModel.data.observe(viewLifecycleOwner) { state ->
+////            val post = state.posts.find { it.id == postId } ?: return@observe
+////            val post = pl.find{post:Post -> post.id == postId}
+//
+//            with(binding) {
+//                author.text = post.author
+//                published.text = Utils.covertUT(post.published)
+//                content.text = post.content
+//                icon.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
+//                tvPostId.setText("ID: " + post.id.toString())
+//                ibLikes.text = Utils.convert(post.likes)
+//                ibLikes.isChecked = post.likedByMe
+//
+//                ivPhoto.load("${BuildConfig.BASE_URL}/media/${post.attachment?.url}")
+//
+//                ivPhoto.setOnClickListener{
+//                    findNavController().navigate(R.id.action_onePostFragment_to_pictureViewFragment,
+//                    Bundle().apply { urlArg = post.attachment?.url })
+//                }
+//
+//                ibLikes.setOnClickListener {
+//                    viewModel.likeById(post.id)
+//                }
+//
+//                // слушатель на кнопку "три точки"
+//                buttonMenu.setOnClickListener {
+//                    PopupMenu(it.context, it).apply {
+//                        inflate(R.menu.options_post)
+//                        setOnMenuItemClickListener { item ->
+//                            when (item.itemId) {
+//                                R.id.remove -> {
+//                                    viewModel.removeById(post.id)
+//                                    findNavController().navigateUp()
+//                                    true
+//                                }
+//                                R.id.add -> {
+//                                    val epost = Post (
+//                                        id = -1L,
+//                                        authorId = -1L,
+//                                        author = it.context.getString(R.string.title),
+//                                        authorAvatar = "",
+//                                        content = "",
+//                                        published = 0L,
+//                                        likedByMe = false,
+//                                        likes = 0,
+//                                        hidden = false,
+//                                        attachment = null
+//                                    )
+//                                    findNavController().navigate(R.id.action_onePostFragment_to_newPostFragment)
+//                                    true
+//                                }
+//                                R.id.edit -> {
+//                                    viewModel.edit(post)
+//                                    findNavController().navigateUp()
+//                                    true
+//                                }
+//                                else -> false
+//                            }
+//                        }
+//                    }.show()
+//                }
+//            }
+//        }
+//        return binding.root
+//    }
+//
+//    companion object {
+//        var Bundle.idArg: Long? by IdArg
+//    }
+//
+//}
