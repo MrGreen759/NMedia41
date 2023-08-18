@@ -1,27 +1,18 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.*
-import androidx.lifecycle.switchMap
 import androidx.paging.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
-import ru.netology.nmedia.activity.FeedFragment
-import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
-import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
@@ -183,6 +174,16 @@ class PostViewModel @Inject constructor(private val repository: PostRepositoryIm
 //            }
 //        }
 //    }
+
+    fun likeById(post: Post) = viewModelScope.launch {
+        if (post != null) {
+            val err = repository.likeById(post)
+            if (err) {
+                errorOperation.postValue(1)
+                errorPostId.postValue((post.id))
+            }
+        }
+    }
 
     fun removeById(id: Long) = viewModelScope.launch {
         val err = repository.removeById(id)

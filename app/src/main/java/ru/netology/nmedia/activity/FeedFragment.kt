@@ -15,7 +15,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
-//import ru.netology.nmedia.activity.OnePostFragment.Companion.idArg
 import ru.netology.nmedia.activity.PictureViewFragment.Companion.urlArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -43,9 +42,9 @@ class FeedFragment : Fragment() {
                 viewModel.edit(post)
             }
 
-//            override fun onLike(post: Post) {
-//                viewModel.likeById(post.id)
-//            }
+            override fun onLike(post: Post) {
+                viewModel.likeById(post)
+            }
 
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
@@ -67,6 +66,13 @@ class FeedFragment : Fragment() {
 //                findNavController().navigate(R.id.action_feedFragment_to_onePostFragment,
 //                    Bundle().apply { idArg = id })
 //            }
+
+            override fun onPost(post: Post) {
+                var bundle = Bundle()
+                bundle.putSerializable("post", post)
+                findNavController().navigate(R.id.action_feedFragment_to_onePostFragment,
+                    bundle)
+            }
 
             override fun onPicture(url: String) {
                 findNavController().navigate(R.id.action_feedFragment_to_pictureViewFragment,
