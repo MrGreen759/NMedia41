@@ -1,23 +1,18 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.*
+import androidx.paging.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
-import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
@@ -41,7 +36,7 @@ private val noPhoto = PhotoModel()
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 //class PostViewModel @Inject constructor(application: Application, appAuth: AppAuth) : AndroidViewModel(application) {
-class PostViewModel @Inject constructor(private val repository: PostRepository, appAuth: AppAuth) : ViewModel() {
+class PostViewModel @Inject constructor(private val repository: PostRepositoryImpl, appAuth: AppAuth) : ViewModel() {
     // упрощённый вариант
 //    private val repository: PostRepository =
 //        PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
@@ -50,27 +45,39 @@ class PostViewModel @Inject constructor(private val repository: PostRepository, 
 //        .map(::FeedModel)
 //        .asLiveData(Dispatchers.Default)
 
-    val data: LiveData<FeedModel> = appAuth
-        .authStateFlow
+//    val data: LiveData<FeedModel> = appAuth
+//        .authStateFlow
+//        .flatMapLatest { (myId, _) ->
+//            repository.data
+//                .map { posts ->
+//                    FeedModel(
+//                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
+//                        posts.isEmpty()
+//                    )
+//                }
+//        }.asLiveData(Dispatchers.Default)
+
+
+    val data: Flow<PagingData<Post>> = appAuth.authStateFlow
         .flatMapLatest { (myId, _) ->
             repository.data
                 .map { posts ->
-                    FeedModel(
-                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
-                        posts.isEmpty()
-                    )
-                }
-        }.asLiveData(Dispatchers.Default)
+                posts.map { it.copy(ownedByMe = it.authorId == myId) }
+            }
+        }.flowOn(Dispatchers.Default)
+
 
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
-    val newerCount: LiveData<Int> = data.switchMap {
-        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
-            .catch { e -> e.printStackTrace() }
-            .asLiveData(Dispatchers.Default)
-    }
+    // TODO Восстановить!!!
+//    val newerCount: LiveData<Int> = data.switchMap {
+//        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
+//            .catch { e -> e.printStackTrace() }
+//            .asLiveData(Dispatchers.Default)
+//    }
+
 
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
@@ -149,13 +156,31 @@ class PostViewModel @Inject constructor(private val repository: PostRepository, 
         _photo.value = PhotoModel(uri, file)
     }
 
-    fun likeById(id: Long) = viewModelScope.launch {
-        val currentPost = data.value?.posts?.filter { post: Post -> post.id == id }
-        if (currentPost != null) {
-            val err = repository.likeById(currentPost[0])
+//      TODO Восстановить!
+//    fun likeById(id: Long) = viewModelScope.launch {
+////        val currentPost = data.value?.posts?.filter { post: Post -> post.id == id }
+//
+//        data.collectLatest { pdl: PagingData<Post> ->
+//            repository.likeById(pdl.filter { it.id == id }) }
+//
+//        data.collectLatest { pdl: PagingData<Post> -> pdl.filter { it.id == id } }
+//
+////        currentPost: Post? = pl.find { post:Post -> post.id == id }
+//        if (currentPost != null) {
+//            val err = repository.likeById(currentPost)
+//            if (err) {
+//                errorOperation.postValue(1)
+//                errorPostId.postValue(id)
+//            }
+//        }
+//    }
+
+    fun likeById(post: Post) = viewModelScope.launch {
+        if (post != null) {
+            val err = repository.likeById(post)
             if (err) {
                 errorOperation.postValue(1)
-                errorPostId.postValue(id)
+                errorPostId.postValue((post.id))
             }
         }
     }

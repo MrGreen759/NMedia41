@@ -1,5 +1,6 @@
 package ru.netology.nmedia.activity
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +16,6 @@ import ru.netology.nmedia.*
 import ru.netology.nmedia.activity.PictureViewFragment.Companion.urlArg
 import ru.netology.nmedia.databinding.FragmentOnePostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.util.IdArg
 import ru.netology.nmedia.util.Utils
 import ru.netology.nmedia.view.*
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -25,6 +25,12 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 @AndroidEntryPoint
 class OnePostFragment: Fragment() {
 
+//    companion object {
+//        var Bundle.idArg: Long? by IdArg
+//    }
+
+
+    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,30 +40,30 @@ class OnePostFragment: Fragment() {
         val binding: FragmentOnePostBinding = FragmentOnePostBinding.inflate(inflater, container, false)
 //        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
         val viewModel: PostViewModel by activityViewModels()
-        val postId = arguments?.idArg
+        val onePost = arguments?.getSerializable("post") as Post
 
-
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val post = state.posts.find { it.id == postId } ?: return@observe
+//       viewModel.data.observe(viewLifecycleOwner) { state ->
+//            val post = state.posts.find { it.id == postId } ?: return@observe
+//            val post = pl.find{post:Post -> post.id == postId}
 
             with(binding) {
-                author.text = post.author
-                published.text = Utils.covertUT(post.published)
-                content.text = post.content
-                icon.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
-                tvPostId.setText("ID: " + post.id.toString())
-                ibLikes.text = Utils.convert(post.likes)
-                ibLikes.isChecked = post.likedByMe
+                author.text = onePost.author
+                published.text = Utils.covertUT(onePost.published)
+                content.text = onePost.content
+                icon.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${onePost.authorAvatar}")
+                tvPostId.setText("ID: " + onePost.id.toString())
+                ibLikes.text = Utils.convert(onePost.likes)
+                ibLikes.isChecked = onePost.likedByMe
 
-                ivPhoto.load("${BuildConfig.BASE_URL}/media/${post.attachment?.url}")
+                ivPhoto.load("${BuildConfig.BASE_URL}/media/${onePost.attachment?.url}")
 
                 ivPhoto.setOnClickListener{
                     findNavController().navigate(R.id.action_onePostFragment_to_pictureViewFragment,
-                    Bundle().apply { urlArg = post.attachment?.url })
+                    Bundle().apply { urlArg = onePost.attachment?.url })
                 }
 
                 ibLikes.setOnClickListener {
-                    viewModel.likeById(post.id)
+                    viewModel.likeById(onePost)
                 }
 
                 // слушатель на кнопку "три точки"
@@ -67,7 +73,7 @@ class OnePostFragment: Fragment() {
                         setOnMenuItemClickListener { item ->
                             when (item.itemId) {
                                 R.id.remove -> {
-                                    viewModel.removeById(post.id)
+                                    viewModel.removeById(onePost.id)
                                     findNavController().navigateUp()
                                     true
                                 }
@@ -88,7 +94,7 @@ class OnePostFragment: Fragment() {
                                     true
                                 }
                                 R.id.edit -> {
-                                    viewModel.edit(post)
+                                    viewModel.edit(onePost)
                                     findNavController().navigateUp()
                                     true
                                 }
@@ -98,12 +104,7 @@ class OnePostFragment: Fragment() {
                     }.show()
                 }
             }
-        }
         return binding.root
+        }
     }
 
-    companion object {
-        var Bundle.idArg: Long? by IdArg
-    }
-
-}

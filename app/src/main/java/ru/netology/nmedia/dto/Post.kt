@@ -14,7 +14,7 @@ data class Post(
     var hidden: Boolean = false,
     val attachment: Attachment? = null,
     val ownedByMe: Boolean = false,
-)
+): java.io.Serializable
 
 data class Attachment(
     val url: String,
