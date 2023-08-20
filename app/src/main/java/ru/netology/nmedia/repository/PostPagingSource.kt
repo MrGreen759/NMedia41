@@ -1,29 +1,35 @@
 package ru.netology.nmedia.repository
 
-import androidx.paging.PagingData
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
+import androidx.paging.*
 import kotlinx.coroutines.flow.single
 import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.error.ApiError
 import java.util.concurrent.Flow
 
-class PostPagingSource (private val apiService:ApiService): PagingSource<Long, Post>() {
-    override fun getRefreshKey(state: PagingState<Long, Post>): Long? {
-        return null
-    }
+@OptIn(ExperimentalPagingApi::class)
+class PostRemoteMediator (
+    private val apiService:ApiService,
+    private val postDao: PostDao,
+    ): RemoteMediator<Int, PostEntity>() {
+//    override fun getRefreshKey(state: PagingState<Long, Post>): Long? {
+//        return null
+//    }
 
-    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, Post> {
+    override suspend fun load(loadType: LoadType, state: PagingState<Int, PostEntity>): MediatorResult {
         try {
-            val response = when (params) {
-                is LoadParams.Refresh -> apiService.getLatest(params.loadSize)
-                is LoadParams.Prepend -> return LoadResult.Page(
-                    data = emptyList(),
-                    prevKey = params.key,
-                    nextKey = null
-                )
-                is LoadParams.Append -> apiService.getBefore(params.key, params.loadSize)
+            val response = when (loadType) {
+                LoadType.REFRESH -> apiService.getLatest(state.config.pageSize)
+                LoadType.PREPEND -> {
+                    val id = state.firstItemOrNull()?.id ?: return MediatorResult.Success(endOfPaginationReached = false)
+                    apiService.getAfter(id, state.config.pageSize)
+                }
+                LoadType.APPEND -> {
+                    val id = state.lastItemOrNull()?.id ?: return MediatorResult.Success(endOfPaginationReached = false)
+                    apiService.getBefore(id, state.config.pageSize)
+                }
             }
 
             if (!response.isSuccessful) {
@@ -34,37 +40,14 @@ class PostPagingSource (private val apiService:ApiService): PagingSource<Long, P
                 response.message(),
             )
 
-            val nextKey = if (body.isEmpty()) null else body.last().id
-            return LoadResult.Page(
-                data = body,
-                prevKey = params.key,
-                nextKey = nextKey,
-            )
+//            val nextKey = if (body.isEmpty()) null else body.last().id
+
+            postDao.insert(body.map { PostEntity.fromDto(it) })
+
+
+            return MediatorResult.Success(body.isEmpty())
         } catch (e: Exception) {
-            return LoadResult.Error(e)
+            return MediatorResult.Error(e)
         }
     }
-
-}
-
-// решение из интернета
-// TODO Разобраться.
-@Suppress("UNCHECKED_CAST")
-private suspend fun <T:Any>PagingData<Post>.toList(): List<Post> {
-    val flow = PagingData::class.java.getDeclaredField("flow").apply {
-        isAccessible = true
-    }.get(this) as kotlinx.coroutines.flow.Flow<PagingData<Post>>
-    val pageEventInsert = flow.single()
-    val pageEventInsertClass = Class.forName("androidx.paging.PageEvent\$Insert")
-    val pagesField = pageEventInsertClass.getDeclaredField("pages").apply {
-        isAccessible = true
-    }
-    val pages = pagesField.get(pageEventInsert) as List<Any?>
-    val transformablePageDataField =
-        Class.forName("androidx.paging.TransformablePage").getDeclaredField("data").apply {
-            isAccessible = true
-        }
-    val listItems =
-        pages.flatMap { transformablePageDataField.get(it) as List<*> }
-    return listItems as List<Post>
 }
