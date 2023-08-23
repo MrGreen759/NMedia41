@@ -9,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModelState
@@ -36,7 +37,10 @@ private val noPhoto = PhotoModel()
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 //class PostViewModel @Inject constructor(application: Application, appAuth: AppAuth) : AndroidViewModel(application) {
-class PostViewModel @Inject constructor(private val repository: PostRepositoryImpl, appAuth: AppAuth) : ViewModel() {
+class PostViewModel @Inject constructor(
+    private val repository: PostRepositoryImpl,
+    appAuth: AppAuth,
+    private val postRemoteKeyDao: PostRemoteKeyDao,) : ViewModel() {
     // упрощённый вариант
 //    private val repository: PostRepository =
 //        PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
@@ -115,6 +119,19 @@ class PostViewModel @Inject constructor(private val repository: PostRepositoryIm
         }
     }
 
+    fun refreshFromId() = viewModelScope.launch {
+        try {
+            _dataState.value = FeedModelState(refreshing = true)
+            val id = postRemoteKeyDao.max()
+            if (id != null) {
+                repository.getNewerCount(id)
+            }
+            _dataState.value = FeedModelState()
+        } catch (e: Exception) {
+            _dataState.value = FeedModelState(error = true)
+        }
+    }
+
     fun save() {
         edited.value?.let {
             _postCreated.value = Unit
@@ -155,25 +172,6 @@ class PostViewModel @Inject constructor(private val repository: PostRepositoryIm
     fun changePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
     }
-
-//      TODO Восстановить!
-//    fun likeById(id: Long) = viewModelScope.launch {
-////        val currentPost = data.value?.posts?.filter { post: Post -> post.id == id }
-//
-//        data.collectLatest { pdl: PagingData<Post> ->
-//            repository.likeById(pdl.filter { it.id == id }) }
-//
-//        data.collectLatest { pdl: PagingData<Post> -> pdl.filter { it.id == id } }
-//
-////        currentPost: Post? = pl.find { post:Post -> post.id == id }
-//        if (currentPost != null) {
-//            val err = repository.likeById(currentPost)
-//            if (err) {
-//                errorOperation.postValue(1)
-//                errorPostId.postValue(id)
-//            }
-//        }
-//    }
 
     fun likeById(post: Post) = viewModelScope.launch {
         if (post != null) {

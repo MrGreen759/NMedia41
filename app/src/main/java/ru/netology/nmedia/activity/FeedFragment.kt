@@ -121,8 +121,12 @@ class FeedFragment : Fragment() {
             newPostsCount = 0
         }
 
+//        binding.swiperefresh.setOnRefreshListener {
+//            viewModel.refreshPosts()
+//        }
+
         binding.swiperefresh.setOnRefreshListener {
-            viewModel.refreshPosts()
+            viewModel.refreshFromId()
         }
 
         binding.fab.setOnClickListener {
