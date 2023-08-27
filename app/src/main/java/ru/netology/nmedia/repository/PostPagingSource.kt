@@ -27,7 +27,11 @@ class PostRemoteMediator (
     override suspend fun load(loadType: LoadType, state: PagingState<Int, PostEntity>): MediatorResult {
         try {
             val response = when (loadType) {
-                LoadType.REFRESH -> apiService.getLatest(state.config.pageSize)
+//                LoadType.REFRESH -> apiService.getLatest(state.config.pageSize)
+                LoadType.REFRESH -> {
+                    val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(endOfPaginationReached = false)
+                    apiService.getNewer(id)
+                }
                 LoadType.PREPEND -> {
 //                    val id = state.firstItemOrNull()?.id ?: return MediatorResult.Success(endOfPaginationReached = false)
                     val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(endOfPaginationReached = false)
@@ -53,7 +57,7 @@ class PostRemoteMediator (
             appDb.withTransaction {
                 when (loadType) {
                     LoadType.REFRESH -> {
-                        postDao.clear()
+//                        postDao.clear()
                         postRemoteKeyDao.insert(
                             listOf(
                                 PostRemoteKeyEntity(
@@ -68,7 +72,6 @@ class PostRemoteMediator (
                         )
                     }
                     LoadType.PREPEND -> {
-                        postDao.clear()
                         postRemoteKeyDao.insert(
                             PostRemoteKeyEntity(
                                 PostRemoteKeyEntity.KeyType.AFTER,
@@ -77,9 +80,11 @@ class PostRemoteMediator (
                         )
                     }
                     LoadType.APPEND -> {
-                        PostRemoteKeyEntity(
-                            PostRemoteKeyEntity.KeyType.BEFORE,
-                            body.last().id
+                        postRemoteKeyDao.insert(
+                            PostRemoteKeyEntity(
+                                PostRemoteKeyEntity.KeyType.BEFORE,
+                                body.last().id
+                            )
                         )
                     }
                 }

@@ -40,7 +40,8 @@ private val noPhoto = PhotoModel()
 class PostViewModel @Inject constructor(
     private val repository: PostRepositoryImpl,
     appAuth: AppAuth,
-    private val postRemoteKeyDao: PostRemoteKeyDao,) : ViewModel() {
+    private val postRemoteKeyDao: PostRemoteKeyDao,
+    ) : ViewModel() {
     // упрощённый вариант
 //    private val repository: PostRepository =
 //        PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
@@ -123,6 +124,7 @@ class PostViewModel @Inject constructor(
         try {
             _dataState.value = FeedModelState(refreshing = true)
             val id = postRemoteKeyDao.max()
+            println("--------------- MYLOG. postRemoteKeyDao.max() = " + id)
             if (id != null) {
                 repository.getNewerCount(id)
             }
