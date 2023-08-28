@@ -120,19 +120,37 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun refreshFromId() = viewModelScope.launch {
-        try {
-            _dataState.value = FeedModelState(refreshing = true)
+    fun refreshFromId() {
+        _dataState.value = FeedModelState(refreshing = true)
+        viewModelScope.launch {
             val id = postRemoteKeyDao.max()
-            println("--------------- MYLOG. postRemoteKeyDao.max() = " + id)
-            if (id != null) {
-                repository.getNewerCount(id)
+            try {
+                println("--------------- MYLOG. postRemoteKeyDao.max() = " + id)
+                if (id != null) {
+                    repository.getNewer(id)
+                }
+                _dataState.value = FeedModelState()
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
             }
-            _dataState.value = FeedModelState()
-        } catch (e: Exception) {
-            _dataState.value = FeedModelState(error = true)
         }
     }
+
+
+//    fun refreshFromId() = viewModelScope.launch {
+//        try {
+//            _dataState.value = FeedModelState(refreshing = true)
+////            val id = postRemoteKeyDao.max()
+//            val id = 10L
+//            println("--------------- MYLOG. postRemoteKeyDao.max() = " + id)
+//            if (id != null) {
+//                repository.getNewer(id)
+//            }
+//            _dataState.value = FeedModelState()
+//        } catch (e: Exception) {
+//            _dataState.value = FeedModelState(error = true)
+//        }
+//    }
 
     fun save() {
         edited.value?.let {

@@ -11,6 +11,7 @@ interface PostRepository {
 //    val data: Flow<List<Post>>
     val data: Flow<PagingData<Post>>
     suspend fun getAll()
+    suspend fun getNewer(id: Long)
     fun getNewerCount(id: Long): Flow<Int>
     suspend fun save(post: Post)
     suspend fun saveWithAttachment(post: Post, upload: MediaUpload)
