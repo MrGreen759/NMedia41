@@ -1,6 +1,7 @@
 package ru.netology.nmedia.repository
 
 import androidx.paging.*
+import dagger.Provides
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -25,7 +26,7 @@ class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
     private val apiService: ApiService,
     private val postRemoteKeyDao: PostRemoteKeyDao,
-    appDb: AppDb,
+    private val appDb: AppDb,
     ) : PostRepository {
 //    override val data = dao.getAll()
 //        .map(List<PostEntity>::toDto)
@@ -54,7 +55,6 @@ class PostRepositoryImpl @Inject constructor(
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
-
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.toEntity())
         } catch (e: IOException) {
@@ -65,12 +65,28 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getNewer(id: Long) {
-            val response = apiService.getNewer(id)
-            if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
+        val prm = PostRemoteMediator(
+            apiService = apiService,
+            postDao = dao,
+            postRemoteKeyDao = postRemoteKeyDao,
+            appDb = appDb
+        )
+        try {
+            val pageSize = prm.pageSize
+            println("================================= pageSize = " + pageSize)
+            val count = apiService.getNewerCount(id).body()
+            println("================================= count = " + count)
+            val response = count?.let { apiService.getAfter(it, pageSize) }
+            if (response != null) {
+                if (!response.isSuccessful) {
+                    throw ApiError(response.code(), response.message())
+                }
+                val body = response.body() ?: throw ApiError(response.code(), response.message())
+                dao.insert(body.toEntity())
             }
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(body.toEntity())
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 
     override fun getNewerCount(id: Long): Flow<Int> = flow {

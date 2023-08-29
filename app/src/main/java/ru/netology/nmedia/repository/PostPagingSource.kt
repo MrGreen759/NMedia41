@@ -2,7 +2,6 @@ package ru.netology.nmedia.repository
 
 import androidx.paging.*
 import androidx.room.withTransaction
-import kotlinx.coroutines.flow.single
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostRemoteKeyDao
@@ -14,8 +13,8 @@ import ru.netology.nmedia.error.ApiError
 import java.util.concurrent.Flow
 
 @OptIn(ExperimentalPagingApi::class)
-class PostRemoteMediator (
-    private val apiService:ApiService,
+class PostRemoteMediator(
+    private val apiService: ApiService,
     private val postDao: PostDao,
     private val postRemoteKeyDao: PostRemoteKeyDao,
     private val appDb: AppDb,
@@ -24,18 +23,24 @@ class PostRemoteMediator (
 //        return null
 //    }
 
+    var pageSize: Int = 0
+
     override suspend fun load(loadType: LoadType, state: PagingState<Int, PostEntity>): MediatorResult {
+        pageSize = state.config.pageSize
         try {
             val response = when (loadType) {
 //                LoadType.REFRESH -> apiService.getLatest(state.config.pageSize)
                 LoadType.REFRESH -> {
-                    val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(endOfPaginationReached = false)
-                    apiService.getNewer(id)
+//                    val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(endOfPaginationReached = false)
+                    postRemoteKeyDao.max() ?.let {
+                        apiService.getAfter(it, state.config.pageSize)
+                    } ?: apiService.getLatest(state.config.pageSize)
                 }
                 LoadType.PREPEND -> {
 //                    val id = state.firstItemOrNull()?.id ?: return MediatorResult.Success(endOfPaginationReached = false)
                     val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(endOfPaginationReached = false)
-                    apiService.getAfter(id, state.config.pageSize)
+//                    apiService.getAfter(id, state.config.pageSize)
+                    apiService.getAfter(id, 0)
                 }
                 LoadType.APPEND -> {
 //                    val id = state.lastItemOrNull()?.id ?: return MediatorResult.Success(endOfPaginationReached = false)

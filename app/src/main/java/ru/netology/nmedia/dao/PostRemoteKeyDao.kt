@@ -9,7 +9,7 @@ import ru.netology.nmedia.entity.PostRemoteKeyEntity
 @Dao
 interface PostRemoteKeyDao {
 
-    @Query("SELECT max('key') FROM PostRemoteKeyEntity")
+    @Query("SELECT max(`key`) FROM PostRemoteKeyEntity")
     suspend fun max(): Long?
 
     @Query("SELECT min('key') FROM PostRemoteKeyEntity")
