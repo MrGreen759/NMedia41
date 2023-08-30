@@ -6,11 +6,9 @@ import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.db.AppDb
-import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.PostRemoteKeyEntity
 import ru.netology.nmedia.error.ApiError
-import java.util.concurrent.Flow
 
 @OptIn(ExperimentalPagingApi::class)
 class PostRemoteMediator(
@@ -29,21 +27,16 @@ class PostRemoteMediator(
         pageSize = state.config.pageSize
         try {
             val response = when (loadType) {
-//                LoadType.REFRESH -> apiService.getLatest(state.config.pageSize)
                 LoadType.REFRESH -> {
-//                    val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(endOfPaginationReached = false)
                     postRemoteKeyDao.max() ?.let {
                         apiService.getAfter(it, state.config.pageSize)
                     } ?: apiService.getLatest(state.config.pageSize)
                 }
                 LoadType.PREPEND -> {
-//                    val id = state.firstItemOrNull()?.id ?: return MediatorResult.Success(endOfPaginationReached = false)
                     val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(endOfPaginationReached = false)
-//                    apiService.getAfter(id, state.config.pageSize)
                     apiService.getAfter(id, 0)
                 }
                 LoadType.APPEND -> {
-//                    val id = state.lastItemOrNull()?.id ?: return MediatorResult.Success(endOfPaginationReached = false)
                     val id = postRemoteKeyDao.min() ?: return MediatorResult.Success(endOfPaginationReached = false)
                     apiService.getBefore(id, state.config.pageSize)
                 }
@@ -56,8 +49,6 @@ class PostRemoteMediator(
                 response.code(),
                 response.message(),
             )
-
-//            val nextKey = if (body.isEmpty()) null else body.last().id
 
             appDb.withTransaction {
                 when (loadType) {

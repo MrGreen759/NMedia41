@@ -1,7 +1,6 @@
 package ru.netology.nmedia.repository
 
 import androidx.paging.*
-import dagger.Provides
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -66,18 +65,17 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun getNewer(id: Long) {
          try {
-            val pageSize = 10
-            println("================================= pageSize = " + pageSize)
-            val count = apiService.getNewerCount(id).body()
-            println("================================= count = " + count)
-            val response = count?.let { apiService.getAfter(it, pageSize) }
-            if (response != null) {
+//            val pageSize // TODO Как получить pageSize из PostRemoteMediator ?
+//            val count = apiService.getNewerCount(id).body()
+//            val response = count?.let { apiService.getAfter(it, pageSize) }
+             val response = apiService.getNewer(id)
+             if (response != null) {
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 dao.insert(body.toEntity())
-            }
+             }
         } catch (e: Exception) {
             throw UnknownError
         }
