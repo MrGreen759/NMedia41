@@ -65,14 +65,8 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getNewer(id: Long) {
-        val prm = PostRemoteMediator(
-            apiService = apiService,
-            postDao = dao,
-            postRemoteKeyDao = postRemoteKeyDao,
-            appDb = appDb
-        )
-        try {
-            val pageSize = prm.pageSize
+         try {
+            val pageSize = 10
             println("================================= pageSize = " + pageSize)
             val count = apiService.getNewerCount(id).body()
             println("================================= count = " + count)
