@@ -83,6 +83,16 @@ class PostViewModel @Inject constructor(
 //            .asLiveData(Dispatchers.Default)
 //    }
 
+//    val newerCount: LiveData<Int> ?= viewModelScope.launch {
+//        postRemoteKeyDao.max()?.let {
+//            repository.getNewerCount(it)
+//                .catch { e -> e.printStackTrace() }
+//                .asLiveData(Dispatchers.Default)
+//
+//        }
+//    }
+
+    val newerCount: Flow<Int> = repository.getNewerCount(0L)
 
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
@@ -96,9 +106,9 @@ class PostViewModel @Inject constructor(
     var errorOperation = MutableLiveData(0) // номер функции, в которой произошла ошибка
     var errorPostId = MutableLiveData(-1L)  // id поста, при обработке которого произошла ошибка
 
-    init {
-        loadPosts()
-    }
+//    init {
+//        loadPosts()
+//    }
 
     fun loadPosts() = viewModelScope.launch {
         try {
@@ -135,22 +145,6 @@ class PostViewModel @Inject constructor(
             }
         }
     }
-
-
-//    fun refreshFromId() = viewModelScope.launch {
-//        try {
-//            _dataState.value = FeedModelState(refreshing = true)
-////            val id = postRemoteKeyDao.max()
-//            val id = 10L
-//            println("--------------- MYLOG. postRemoteKeyDao.max() = " + id)
-//            if (id != null) {
-//                repository.getNewer(id)
-//            }
-//            _dataState.value = FeedModelState()
-//        } catch (e: Exception) {
-//            _dataState.value = FeedModelState(error = true)
-//        }
-//    }
 
     fun save() {
         edited.value?.let {

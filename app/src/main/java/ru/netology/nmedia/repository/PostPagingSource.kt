@@ -21,10 +21,8 @@ class PostRemoteMediator(
 //        return null
 //    }
 
-    var pageSize: Int = 0
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, PostEntity>): MediatorResult {
-        pageSize = state.config.pageSize
         try {
             val response = when (loadType) {
                 LoadType.REFRESH -> {

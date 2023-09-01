@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
@@ -89,7 +90,8 @@ class FeedFragment : Fragment() {
             binding.swiperefresh.isRefreshing = state.refreshing
             if (state.error) {
                 Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
+//                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
+                    .setAction(R.string.retry_loading) { adapter.refresh() }
                     .show()
             }
         }
@@ -114,13 +116,13 @@ class FeedFragment : Fragment() {
 //            binding.emptyText.isVisible = state.empty
 //        }
 
-//        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-//            if (state != 0) {
-//                newPostsCount += 1
-//                binding.buttonNew.isVisible = true
-//                binding.buttonNew.text = getString(R.string.new_posts_appear) + " ($newPostsCount)"
-//            }
-//        }
+        viewModel.newerCount.asLiveData().observe(viewLifecycleOwner) { state ->
+            if (state != 0) {
+                newPostsCount += 1
+                binding.buttonNew.isVisible = true
+                binding.buttonNew.text = getString(R.string.new_posts_appear) + " ($newPostsCount)"
+            }
+        }
 
         binding.buttonNew.setOnClickListener {
             viewModel.showAll()
@@ -130,10 +132,6 @@ class FeedFragment : Fragment() {
             }
             newPostsCount = 0
         }
-
-//        binding.swiperefresh.setOnRefreshListener {
-//            viewModel.refreshPosts()
-//        }
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refreshFromId()

@@ -83,14 +83,19 @@ class PostRepositoryImpl @Inject constructor(
 
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
+            val maxId = postRemoteKeyDao.max()
             delay(10_000L)
-            val response = apiService.getNewer(id)
-            if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
+            val response = maxId?.let { apiService.getNewerCount(it) }
+            if (response != null) {
+                if (!response.isSuccessful) {
+                    throw ApiError(response.code(), response.message())
+                }
             }
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(body.toEntity())
-            emit(body.size)
+            val body = response?.body() // ?: throw ApiError(response.code(), response.message())
+//            dao.insert(body.toEntity())
+            if (body != null) {
+                emit(body.toInt())
+            }
         }
     }
         .catch { e -> throw AppError.from(e) }

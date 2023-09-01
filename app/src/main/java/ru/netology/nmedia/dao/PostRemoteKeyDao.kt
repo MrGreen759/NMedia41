@@ -12,7 +12,7 @@ interface PostRemoteKeyDao {
     @Query("SELECT max(`key`) FROM PostRemoteKeyEntity")
     suspend fun max(): Long?
 
-    @Query("SELECT min('key') FROM PostRemoteKeyEntity")
+    @Query("SELECT min(`key`) FROM PostRemoteKeyEntity")
     suspend fun min(): Long?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
