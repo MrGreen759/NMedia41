@@ -92,7 +92,7 @@ class PostViewModel @Inject constructor(
 //        }
 //    }
 
-    val newerCount: Flow<Int> = repository.getNewerCount(0L)
+    val newerCount: Flow<Int> = repository.getNewerCount(0L) // TODO Разобраться с id
 
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()

@@ -12,6 +12,7 @@ import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.entity.PostRemoteKeyEntity
 import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ApiError
@@ -75,6 +76,9 @@ class PostRepositoryImpl @Inject constructor(
                 }
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 dao.insert(body.toEntity())
+                postRemoteKeyDao.insert(PostRemoteKeyEntity(
+                    PostRemoteKeyEntity.KeyType.AFTER,
+                    body.last().id))
              }
         } catch (e: Exception) {
             throw UnknownError
@@ -98,8 +102,12 @@ class PostRepositoryImpl @Inject constructor(
             }
         }
     }
-        .catch { e -> throw AppError.from(e) }
-        .flowOn(Dispatchers.Default)
+        .catch {
+                e -> {
+            println("======================= Exception: " + e)
+            throw AppError.from(e)
+                }
+        }.flowOn(Dispatchers.Default)
 
     override suspend fun save(post: Post) {
         try {
