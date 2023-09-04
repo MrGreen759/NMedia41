@@ -53,25 +53,39 @@ class PostRemoteMediator(
                     LoadType.REFRESH -> {
 //                        postDao.clear()
                         postRemoteKeyDao.insert(
-                            listOf(
-                                PostRemoteKeyEntity(
-                                    PostRemoteKeyEntity.KeyType.AFTER,
-                                    body.first().id
-                                ),
-                                PostRemoteKeyEntity(
-                                    PostRemoteKeyEntity.KeyType.BEFORE,
-                                    body.last().id
-                                )
-                            )
-                        )
-                    }
-                    LoadType.PREPEND -> {
-                        postRemoteKeyDao.insert(
                             PostRemoteKeyEntity(
                                 PostRemoteKeyEntity.KeyType.AFTER,
                                 body.first().id
                             )
                         )
+                        if(postDao.isEmpty()) {
+                            postRemoteKeyDao.insert(
+                                PostRemoteKeyEntity(
+                                    PostRemoteKeyEntity.KeyType.BEFORE,
+                                    body.last().id
+                                )
+                            )
+                        }
+//                        postRemoteKeyDao.insert(
+//                            listOf(
+//                                PostRemoteKeyEntity(
+//                                    PostRemoteKeyEntity.KeyType.AFTER,
+//                                    body.first().id
+//                                ),
+//                                PostRemoteKeyEntity(
+//                                    PostRemoteKeyEntity.KeyType.BEFORE,
+//                                    body.last().id
+//                                )
+//                            )
+//                        )
+                    }
+                    LoadType.PREPEND -> {
+//                        postRemoteKeyDao.insert(
+//                            PostRemoteKeyEntity(
+//                                PostRemoteKeyEntity.KeyType.AFTER,
+//                                body.first().id
+//                            )
+//                        )
                     }
                     LoadType.APPEND -> {
                         postRemoteKeyDao.insert(
