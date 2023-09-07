@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.PostRemoteKeyDao
+import ru.netology.nmedia.dto.Ad
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModelState
@@ -18,6 +20,7 @@ import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
 import javax.inject.Inject
+import kotlin.random.Random
 
 private val empty = Post(
     id = 0,
@@ -62,14 +65,20 @@ class PostViewModel @Inject constructor(
 //                }
 //        }.asLiveData(Dispatchers.Default)
 
+    private val cached = repository.data.cachedIn(viewModelScope)
 
-    val data: Flow<PagingData<Post>> = appAuth.authStateFlow
+    val data: Flow<PagingData<FeedItem>> = appAuth.authStateFlow
         .flatMapLatest { (myId, _) ->
-            repository.data
-                .map { posts ->
-                posts.map { it.copy(ownedByMe = it.authorId == myId) }
+            cached.map { pagingData ->
+                pagingData.map { post ->
+                    if (post is Post) {
+                        post.copy(ownedByMe = post.authorId == myId)
+                    } else {
+                        post
+                    }
+                }
             }
-        }.flowOn(Dispatchers.Default)
+        }
 
 
     private val _dataState = MutableLiveData<FeedModelState>()
